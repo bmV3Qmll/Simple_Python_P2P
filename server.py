@@ -20,8 +20,8 @@ class Server:
 		if not os.path.exists(self.opt.log_dir):
 			os.makedirs(self.opt.log_dir)
 		self.log_file = os.path.join(self.opt.log_dir, 'opt.json')
-		self.host = self.opt.interface
-		self.port = self.opt.port
+		self.host = self.opt.server
+		self.port = self.opt.serverport
 		
 		with open(self.log_file, 'w') as f:
 			json.dump(self.opt.__dict__.copy(), f, indent=4)
@@ -119,12 +119,13 @@ class Server:
 				print("Client", client_addr[0], "connects to the server")
 				self.semaphore.acquire()
 				dup = False
+				clientPort = 6891
 				for i, host in enumerate(self.clientHost):
 					if req[1] == host["name"]:
 						dup = True
+						clientPort = host["port"]
 						break
 				if not dup:
-					clientPort = 6891
 					if len(self.clientHost) != 0:
 						clientPort = self.clientHost[-1]["port"] + 1
 					self.clientHost.append(dict(zip(self.clientMetaData, (req[1], client_addr[0], clientPort))))
@@ -227,13 +228,16 @@ class Server:
 			if addr == "404":
 				messagebox.showerror(title="WARNING", message="Hostname not found!")
 				return
+			self.listbox2.delete(0, tk.END)
 			param = "-n" if platform.system().lower() == "windows" else "-c"
 			command = ["ping", param, "1", addr]
 			out = f'Host_name: {pname} , IP: {addr} , Status: '.encode()
-			out += subprocess.check_output(command)
-			self.listbox2.delete(0, tk.END)
-			for res in addr:
-				self.listbox2.insert(tk.END, out)
+			try:
+				out += subprocess.check_output(command)
+				for res in addr:
+					self.listbox2.insert(tk.END, out)
+			except:
+				self.listbox2.insert(tk.END, "Host: {pname} is not online.")
 
 	def listHost(self):
 		all_hosts = [host["name"] for host in self.clientHost]

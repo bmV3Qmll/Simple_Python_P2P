@@ -284,7 +284,6 @@ class Client:
 			if not os.path.exists(file_path):
 				conn.send("FILE_NOT_FOUND".encode())
 			else:
-				self.semaphore.acquire()
 				conn.send("OK".encode())
 				with open(file_path, "rb") as sharing_file:
 					while True:
@@ -294,7 +293,6 @@ class Client:
 							conn.close()
 							break
 						conn.send(data)
-				self.semaphore.release()
 				print("The file has been sent successfully")
 
 	def on_closing(self):

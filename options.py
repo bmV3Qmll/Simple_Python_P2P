@@ -20,12 +20,17 @@ class NetworkOptions:
 		self.parser.add_argument(
 			"--server",
 			type=str,
-			default="127.0.0.1"
+			default=""
 		)
 		self.parser.add_argument(
-			"--port",
+			"--serverport",
 			type=int,
 			default=6890
+		)
+		self.parser.add_argument(
+			"--clientport",
+			type=int,
+			default=6889
 		)
 		
 
