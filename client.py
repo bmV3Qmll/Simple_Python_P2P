@@ -16,7 +16,7 @@ class Client:
 		'''
 		self.opt = options
 		self.server = self.opt.server
-		self.serverport = self.opt.port
+		self.serverport = self.opt.serverport
 		self.interface = self.opt.interface
 
 		''' Network components
@@ -24,7 +24,7 @@ class Client:
 		self.semaphore = Semaphore()
 		self.clientSocket = socket(AF_INET, SOCK_DGRAM)
 		self.peerSocket = socket(AF_INET, SOCK_STREAM)
-		self.clientSocket.bind((self.interface, 6889))
+		self.clientSocket.bind((self.interface, self.opt.clientport))
 		self.clientSocket.settimeout(1)
 
 		''' Connect to server
@@ -228,7 +228,9 @@ class Client:
 		except:
 			messagebox.showerror("Error", f"Host: {hostname} is not online! Please try again!")
 			return
+		Thread(target=self.fetchFile, args=(conn, filename, ), daemon=True).start()
 
+	def fetchFile(self, conn, filename):
 		conn.send(pickle.dumps(["fetch", filename]))
 		data = conn.recv(1024)
 		if data == "FILE_NOT_FOUND".encode():
